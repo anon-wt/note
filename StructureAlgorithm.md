@@ -667,9 +667,147 @@ class HeroNode {
 
    
 
+## 单向环形链表
 
+1. 单向环形链表创建
 
+   * 先创建第一个节点，让first指向该节点，并形成环形
+   * 随后每创建一个节点，都将该节点加入到该环形队列中即可
 
+2.  单项环形链表遍历：
+
+   * 创建一个辅助变量curr 让curr 指向first ,然后 curr = curr.getNext ,直到 curr.getNext = first 结束
+
+3. Josepfu 问题
+
+   设编号为1，2，... n的n个人围成一圈，约定标号为k（1 <= k <= n）的人,从1开始报数，数到m的人出列，他的下一位继续从1开始报数， 数到m出列，以此类推，直到最后一个人出列位置，请输出出列标号顺序
+
+   例如： n =5 , k =1, m =2  其出列顺序为： 2->4->1->5->3
+
+2. Josepfu问题解题思路
+
+   * 创建环形单向链表
+
+   * 创建一个辅助变量helper,指向环形链表的最后一个节点
+   * 在让小孩报数前，先让first和helper移动k-1次
+   * 当小孩报数时， 让first和helper均移动m-1次
+   * 这时就可以让first 指向的节点出队列： first = first.getNext(); helper.setNext() = first;
+
+3. 代码:
+
+   ```java
+   
+   
+   class CircleSingleLink {
+       private Boy first;
+   
+       public CircleSingleLink() {
+       }
+   
+       public void add(int num) throws Exception {
+           if (num < 1) {
+               throw new Exception("CircleSingleLink num must be bigger 1");
+           }
+   
+           Boy curr = null;
+           for (int i = 1; i <= num; i++) {
+               Boy boy = new Boy(i);
+               if (i == 1) {
+                   first = boy;
+                   first.setNext(first);
+                   curr = first;
+               } else {
+                   curr.setNext(boy);
+                   boy.setNext(first);
+                   curr = boy;
+               }
+           }
+       }
+   
+       public void show() throws Exception {
+           Boy curr = first;
+           if (curr == null) {
+               throw new Exception("CircleSingleLink is empty");
+           }
+           while (true) {
+               System.out.printf("this boy no is [%d] \n", curr.getNo());
+               if (curr.getNext() == first) {
+                   break;
+               }
+               curr = curr.getNext();
+           }
+       }
+   
+       /**
+        * 约瑟夫问题
+        * @param start 起始位置
+        * @param slip 数几个
+        * @param num 总数
+        */
+       public void countBoy(int start, int slip, int num) {
+           if (start < 1 || start > num) {
+               System.out.printf("起始位置应在1-%d 之间\n", num);
+           }
+           // 1. 设置一个first位置， 以及一个before 位置， first 位置数据将被丢弃， before 位置在first 位置之前
+           Boy helper = first;
+           while (true) {
+               if (helper.getNext() == first) {
+                   break;
+               }
+               helper = helper.getNext();
+           }
+   
+           // 2. 选择起始位置
+           for (int i = 0; i < start -1 ; i++) {
+               first = first.getNext();
+               helper = helper.getNext();
+           }
+   
+           // 3. 根据滑动步伐
+           while (true) {
+               if (helper == first) {
+                   break;
+               }
+               for (int i = 0; i < slip -1 ; i++) {
+                   first = first.getNext();
+                   helper = helper.getNext();
+               }
+               System.out.printf("输出的节点no is [%d] \n", first.getNo());
+               first = first.getNext();
+               helper.setNext(first);
+           }
+           System.out.printf("输出的最后一个节点no is [%d] \n", first.getNo());
+       }
+   }
+   
+   class Boy {
+       private int no;
+       private Boy next;
+   
+       public Boy(int no) {
+           this.no = no;
+       }
+   
+       public int getNo() {
+           return no;
+       }
+   
+       public void setNo(int no) {
+           this.no = no;
+       }
+   
+       public Boy getNext() {
+           return next;
+       }
+   
+       public void setNext(Boy next) {
+           this.next = next;
+       }
+   }
+   
+   ```
+
+   
 
 
 
