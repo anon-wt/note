@@ -408,6 +408,265 @@ class HeroNode {
 }
 ```
 
+6.面试题
+
+* 求单链表中有效节点的个数， 代码如下：
+
+  ```java
+      public int getLength() {
+          HeroNode node = headHeroNode;
+          int length = 0;
+          while (node.next != null) {
+              length ++;
+              node = node.next;
+          }
+          return length;
+      }
+  ```
+
+* 求单链表中倒数第k个节点 ， 代码如下：
+
+  ```java
+  public HeroNode getLastIndexNode(int index) {
+          // 1. 获得节点个数
+          int length = getLength();
+  
+          if (index <= 0 || index > length) {
+              System.out.printf("out of index: %d\n", index);
+              throw new RuntimeException("out of index");
+          }
+  
+          HeroNode node = headHeroNode.next;
+          for (int i = 0; i < length - index; i ++) {
+              node = node.next;
+          }
+          return node;
+      }
+  
+  ```
+
+* 单链表的反转， 代码如下：
+
+  ```java
+      public void reserveNode() {
+          if (headHeroNode.next == null || headHeroNode.next.next == null) {
+              return;
+          }
+          HeroNode head = new HeroNode(0, "");
+          HeroNode curr = headHeroNode.next;
+          HeroNode next;
+          while (curr != null) {
+              next = curr.next;
+              curr.next = head.next;
+              head.next = curr;
+              curr = next;
+          }
+          headHeroNode.next = head.next;
+      }
+  ```
+
+  
+
+* 从尾到头打印单链表， 代码如下：
+
+  ```java
+      public void print() {
+          // 打印链表
+          Stack<HeroNode> heroNodes = new Stack<HeroNode>();
+          HeroNode curr = headHeroNode.next;
+          while (curr != null) {
+              heroNodes.push(curr);
+              curr = curr.next;
+          }
+  
+          while (heroNodes.size() > 0) {
+              System.out.println(heroNodes.pop());
+          }
+      }
+      // 不推荐， 破坏了原有的链表结构
+      public void print2() {
+          reserveNode();
+          HeroNode curr = headHeroNode.next;
+          while (curr != null) {
+              System.out.println(curr);
+              curr = curr.next;
+          }
+      }
+  ```
+
+  
+
+* 合并两个有序的单链表， 合并后的单链表依然有序， 代码如下：
+
+  ```java
+  public void union(SingleHeroNode singleHeroNode) {
+      HeroNode curr = singleHeroNode.headHeroNode.next;
+          HeroNode next;
+          while (curr != null) {
+              next = curr.next;
+              addByOrder(curr);
+              curr = next;
+          }
+      }
+  
+  ```
+
+## 双向链表
+
+1. 和单向链表对比：
+   * 单向链表的查找方向只能是一个方向， 双向链表可以向前向后两个方向查找
+   * 单项链表不能进行自我删除，需要提供一个temp:被删除节点的前一个， 双向链表可以进行自我删除
+
+2. 链表的增删改查
+
+   * **遍历** 和单项链表一样， 只是可以向前也可以向后遍历
+   * **添加**（默认添加到最后）
+     - 先找到双向链表的最后一个节点
+     - temp.next = newHeroNode; newHeroNode.pre = tmep
+
+   * **修改**思路和单项链表一样
+   * **删除**
+     - 因为是双向链表，所以我们可以实现自我删除莫格节点
+     - 直接找到对应节点比如temp
+     - temp.pre.next = temp.next
+     - temp.next.pre = temp.pre
+
+   * **排序添加** 和单项链表略微相同， 在其之上稍微修改即可
+
+3. 代码如下：
+
+   ```JAVA
+   
+   class DoubleLinkedNode {
+       private HeroNode2 headNode = new HeroNode2(-1, "");
+   
+       public DoubleLinkedNode() {
+       }
+   
+       public HeroNode2 getHeadNode() {
+           return headNode;
+       }
+   
+   
+       // 1. 新增
+       public void add(HeroNode2 heroNode) {
+           HeroNode2 tmp = headNode;
+           while (tmp.next != null) {
+               tmp = tmp.next;
+           }
+           tmp.next = heroNode;
+           heroNode.pre = tmp;
+       }
+   
+       public void addByOrder(HeroNode2 heroNode) {
+           HeroNode2 tmp = headNode;
+           while (true) {
+               if (tmp.next == null) {
+                   heroNode.pre = tmp;
+                   tmp.next = heroNode;
+                   break;
+               }
+   
+               if (tmp.no == heroNode.no) {
+                   System.out.printf("this no[%d] is exist!\n", heroNode.no);
+                   break;
+               } else if (tmp.next.no > heroNode.no ) {
+                   heroNode.pre = tmp;
+                   heroNode.next = tmp.next;
+                   tmp.next.pre = heroNode;
+                   tmp.next = heroNode;
+                   break;
+               }
+   
+               tmp = tmp.next;
+           }
+   
+   
+   
+       }
+   
+   
+       // 2. 删除
+       public void delete(int no) {
+           if (headNode.next == null) {
+               System.out.println("this is empty list");
+               return;
+           }
+   
+           HeroNode2 tmp = headNode.next;
+           boolean flag = false;
+           while (tmp.next != null) {
+               if (tmp.no == no) {
+                   flag = true;
+                   break;
+               }
+               tmp = tmp.next;
+           }
+   
+           if (flag) {
+               tmp.pre.next = tmp.next;
+               tmp.next.pre = tmp.pre;
+           }
+       }
+   
+       // 3. 修改
+       public void update(HeroNode2 heroNode2) {
+           HeroNode2 tmp = headNode.next;
+           boolean flag = false;
+           while (tmp.next != null) {
+               if (tmp.no == heroNode2.no) {
+                   flag = true;
+                   break;
+               }
+               tmp = tmp.next;
+           }
+   
+           if (flag) {
+               tmp.name = heroNode2.name;
+           }
+       }
+   
+       // 4. list
+       public void list() {
+           HeroNode2 tmp = headNode.next;
+           while (tmp != null) {
+               System.out.println("this node: " + tmp);
+               tmp = tmp.next;
+           }
+   
+   
+       }
+   
+   
+   
+   }
+   
+   
+   class HeroNode2 {
+       int no;
+       String name;
+       HeroNode2 next;
+       HeroNode2 pre;
+   
+       public HeroNode2(int no, String name) {
+           this.no = no;
+           this.name = name;
+       }
+   
+   
+   
+       @Override
+       public String toString() {
+           return "HeroNode{" +
+                   "no=" + no +
+                   ", name='" + name + '\'' +
+                   '}';
+       }
+   }
+   ```
+
+   
+
 
 
 
