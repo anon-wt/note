@@ -809,7 +809,78 @@ class HeroNode {
 
    
 
+---
 
+# 栈
+
+1. 栈是**先入后出**的有序列表
+2. 栈是线性表中，元素的**插入和删除都在线性表的同一端**的线性表，允许元素插入和删除的一端叫做栈顶（top）另一端为栈底（bottom）
+3. 由栈的定义可知，最先放入栈的元素在栈底，最后放入栈的元素在栈顶，而删除却恰恰相反，最先删除的是最后放入的，最后删除的是第一个放入的
+4. 栈的应用场景：
+   * 子程序的调用，在跳往子程序前，会将下一个命令的地址存放在栈中，直到子程序执行完毕，再将地址取出以回到程序中
+   * 处理递归调用，和子程序调用类似，只是在存放下一个命令地址外也会将参数，区域变量等数据存放在栈中
+   * 表达式的转换与求值
+   * 二叉树的遍历
+   * 图形的深度优先（depth-first）搜索法
+
+5. 定义栈思路
+   * 用数组定义栈
+   * 定义一个变量为top 初始化为-1 push top ++; arr[top] = data; pop top --;
+
+6. 代码
+
+   ```java
+   
+   class ArrStack {
+       private int maxSize;
+       private int[] arr;
+       private int top = -1;
+   
+       public ArrStack(int maxSize) {
+           this.maxSize = maxSize;
+           arr = new int[maxSize];
+       }
+   
+       public boolean isEmpty() {
+           return top == -1;
+       }
+   
+       public boolean isFull() {
+           return top == maxSize -1;
+       }
+   
+       public void push(int data) {
+           if(isFull()) {
+               System.out.println("this stack is full ... ");
+               return;
+           }
+   
+           top ++;
+           arr[top] = data;
+       }
+   
+       public void pop() throws Exception {
+           if(isEmpty()) {
+               throw new Exception("this stack is empty ... ");
+           }
+           top --;
+       }
+   
+       public void show() {
+           if(isEmpty()) {
+               System.out.println("this stack is empty...");
+               return;
+           }
+           for(int i = top; i >= 0; i -- ) {
+               System.out.printf("第%d位数为%d \n", i, arr[i]);
+           }
+       }
+   
+   
+   }
+   ```
+
+   
 
 ​       
 
