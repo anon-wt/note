@@ -813,9 +813,14 @@ class HeroNode {
 
 # 栈
 
+## 基本原理以及实现
+
 1. 栈是**先入后出**的有序列表
+
 2. 栈是线性表中，元素的**插入和删除都在线性表的同一端**的线性表，允许元素插入和删除的一端叫做栈顶（top）另一端为栈底（bottom）
+
 3. 由栈的定义可知，最先放入栈的元素在栈底，最后放入栈的元素在栈顶，而删除却恰恰相反，最先删除的是最后放入的，最后删除的是第一个放入的
+
 4. 栈的应用场景：
    * 子程序的调用，在跳往子程序前，会将下一个命令的地址存放在栈中，直到子程序执行完毕，再将地址取出以回到程序中
    * 处理递归调用，和子程序调用类似，只是在存放下一个命令地址外也会将参数，区域变量等数据存放在栈中
@@ -875,8 +880,257 @@ class HeroNode {
                System.out.printf("第%d位数为%d \n", i, arr[i]);
            }
        }
+   }
+   ```
+
+   ```java
+   
+   class LinkedStack {
+       private Node head;
+   
+       public LinkedStack() {
+           head = new Node(-1);
+       }
+   
+       public boolean isEmpty() {
+          return head.getNext() == null;
+       }
+   
+       public void push (int no) {
+           Node node = new Node(no);
+           node.setNext(head.getNext());
+           head.setNext(node);
+       }
+   
+       public void pop() throws Exception {
+           if (isEmpty()) {
+               throw new Exception("this stack is empty");
+           }
+           Node tmp = head;
+           head.setNext(head.getNext().getNext());
+       }
    
    
+       public void show() {
+           Node temp = head;
+           while (true) {
+               if (temp != head) {
+                   System.out.printf("this node is %d \n", temp.getNo());
+               }
+               if (temp.getNext() == null) {
+                   break;
+               }
+               temp = temp.getNext();
+           }
+       }
+       
+   
+   }
+   
+   
+   
+   class Node {
+       private int no;
+       private Node next;
+   
+       public Node(int no) {
+           this.no = no;
+       }
+   
+       public int getNo() {
+           return no;
+       }
+   
+       public void setNo(int no) {
+           this.no = no;
+       }
+   
+       public Node getNext() {
+           return next;
+       }
+   
+       public void setNext(Node next) {
+           this.next = next;
+       }
+   }
+   
+   ```
+
+## 利用栈进行表达式计算
+
+1. 实现步骤：
+
+   1. 通过一个索引index来遍历表达式
+   2. 如果我们发现是一个数字，就直接放入数字栈，如果我们发现是一个符号则分以下情况
+      - 如果当前的符号栈为空，直接入栈
+      - 如果当前的符号栈不为空，则与符号栈里的符号进行比较
+        * 如果当前符号栈优先级小于等于栈内的符号，则从数栈pop出两个数字，从符号栈poo出一个符号，进行运算， 将运算的结果push数栈，并将当前的符号入符号栈
+        * 如果当前的符号优先级大于栈内的符号
+
+   3. 当扫描完毕后，再从数栈和符号栈pop出数字和符号进行运算
+   4. 最后数栈中只有一个结果就是表达式的结果
+
+2. 代码：
+
+   ```java
+   public class ExpressionDemo {
+       public static void main(String[] args) throws Exception {
+           String expression = "340+2*6-20";
+           ArrayStack numberStack = new ArrayStack(10);
+           ArrayStack operatorStack = new ArrayStack(10);
+   
+           int index = 0;
+           int num1;
+           int num2;
+           char operator;
+           int result;
+           char ch;
+           String keepNum = "";
+   
+           int length = expression.length();
+           while (true) {
+               if (index == length) {
+                   break;
+               }
+               ch = expression.charAt(index);
+               if (isOperator(ch)) {
+                   if(operatorStack.isEmpty()) {
+                       operatorStack.push(ch);
+                   } else {
+                       if (priority(ch) <= priority(operatorStack.peep())) {
+                           num1 = numberStack.pop();
+                           num2 = numberStack.pop();
+                           operator = (char) operatorStack.pop();
+                           result = (char)calculation(num1, num2, operator);
+   
+                           numberStack.push(result);
+                           operatorStack.push(ch);
+                       } else {
+                           operatorStack.push(ch);
+                       }
+                   }
+                   index ++;
+               } else {
+                   while (true) {
+                       if (index == length) {
+                           break;
+                       }
+                       ch = expression.charAt(index);
+                       if (isOperator(ch)) {
+                           break;
+                       }
+                       keepNum += ch;
+                       index ++;
+                   }
+                   numberStack.push(Integer.parseInt(keepNum));
+                   keepNum = "";
+               }
+           }
+   
+           while(true) {
+               if (operatorStack.isEmpty()) {
+                   break;
+               }
+               num1 = numberStack.pop();
+               num2 = numberStack.pop();
+               operator = (char) operatorStack.pop();
+               result = calculation(num1, num2, operator);
+               numberStack.push(result);
+           }
+   
+           System.out.printf("表达式 %s 的结果为：%d", expression, numberStack.pop());
+       }
+   
+   
+       // 判断是否是符号
+       public static boolean isOperator(int data) {
+           return data == '+' || data == '-' || data == '*' || data == '/';
+       }
+   
+   
+       public static int priority(int data) throws Exception {
+           int flag = 0;
+           switch (data) {
+               case '-' :
+               case '+':
+                   flag = 1;
+                   break;
+               case '*' :
+               case '/':
+                   flag = 2;
+                   break;
+               default:
+                   throw new Exception("not support this operator");
+           }
+           return flag;
+       }
+   
+       public static int calculation(int num1, int num2, char operator) throws Exception {
+           int result = 0;
+           switch (operator) {
+               case '-' :
+                   result = num2 - num1;
+                   break;
+               case '+':
+                   result = num2 + num1;
+                   break;
+               case '*' :
+                   result = num2 * num1;
+                   break;
+               case '/':
+                   result = num2 / num1;
+                   break;
+               default:
+                   throw new Exception("not support this operator");
+           }
+           return result;
+       }
+   
+   
+   }
+   
+   
+   class ArrayStack {
+       private int maxSize;
+       private int[] arr;
+       private int top;
+   
+       public ArrayStack(int maxSize) {
+           this.maxSize = maxSize;
+           arr = new int[maxSize];
+           top = -1;
+       }
+   
+       public boolean isEmpty() {
+           return top == -1;
+       }
+   
+       public boolean isFull() {
+           return top == maxSize-1;
+       }
+   
+       public void push(int data) {
+           if (isFull()) {
+               System.out.println("数组已经满了");
+           } else {
+               top ++;
+               arr[top] = data;
+           }
+       }
+   
+       public int pop() throws Exception {
+           if (isEmpty()) {
+               throw new Exception("数组已经空...");
+           } else {
+               int data = arr[top];
+               top --;
+               return data;
+           }
+       }
+   
+       public int peep() {
+           return arr[top];
+       }
    }
    ```
 
